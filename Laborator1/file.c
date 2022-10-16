@@ -1,8 +1,21 @@
 #include <stdio.h>
 
+int x = 1;
+
 int main()
 {
-  printf("Hello World!\n");
+  __asm__
+  (
+    "pusha;"
+    
+    "mov x, %eax;"
+    "add $1, %eax;"
+    "mov %eax, x;"
+
+    "popa;"
+  );
+
+  printf("%d\n", x);
   return 0;
 }
 
