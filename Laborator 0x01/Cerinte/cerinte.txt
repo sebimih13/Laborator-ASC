@@ -1,0 +1,5 @@
+1) Se da un numar a de la tastatura. Sa se afiseze toti divizorii acestuia pe ecran.
+2) Se citesc de la tastatura un numar x, un numar n si apoi un vector cu n numere naturale. Sa se stocheze in memorie si sa se afiseze pe ecran doar acel numere din vector care sunt multiplii de x.
+3) Se citeste un string de la tastatura. Sa se afizeze pe ecran numarul de vocale.
+
+
