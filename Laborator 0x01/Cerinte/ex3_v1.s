@@ -15,65 +15,47 @@ main:
     call gets
     popl %ebx
 
-    ;/ verifica fiecare char daca e vocala
-    ;/ 65 - A         97  - a
-    ;/ 69 - E         101 - e
-    ;/ 73 - I         105 - i
-    ;/ 79 - O         111 - o
-    ;/ 85 - U         117 - u
-    ;/ 0 - '\0'
-
     movl $0, %eax
     movl $0, %ebx
 
     lea s, %esi
     movl $0, %ecx
 et_for:
-    ;/ verifica daca suntem la '\0'
     movb (%esi, %ecx, 1), %al
 
+    ;/ verifica daca suntem la '\0'
     movb $0, %bl      ;/ '\0'
     cmp %bl, %al
     je et_afis
 
-    mov $65, %bl      ;/ 'A'
-    cmp %bl, %al
+    cmp $'A', %al
     je increment
 
-    mov $69, %bl      ;/ 'E'
-    cmp %bl, %al
+    cmp $'E', %al
     je increment
 
-    mov $73, %bl      ;/ 'I'
-    cmp %bl, %al
+    cmp $'I', %al
     je increment
 
-    mov $79, %bl      ;/ 'O'
-    cmp %bl, %al
+    cmp $'O', %al
     je increment
 
-    mov $85, %bl      ;/ 'U'
-    cmp %bl, %al
+    cmp $'U', %al
     je increment
 
-    mov $97, %bl      ;/ 'a'
-    cmp %bl, %al
+    cmp $'a', %al
     je increment
 
-    mov $101, %bl     ;/ 'e'
-    cmp %bl, %al
+    cmp $'e', %al
     je increment
 
-    mov $105, %bl     ;/ 'i'
-    cmp %bl, %al
+    cmp $'i', %al
     je increment
 
-    mov $111, %bl     ;/ 'o'
-    cmp %bl, %al
+    cmp $'o', %al
     je increment
 
-    mov $117, %bl     ;/ 'u'
-    cmp %bl, %al
+    cmp $'u', %al
     je increment
 
     incl %ecx
