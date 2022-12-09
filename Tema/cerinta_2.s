@@ -13,7 +13,7 @@
 
 .data
     formatScanf: .asciz "%ld"
-    formatPrintf: .asciz "%ld "
+    formatPrintf: .asciz "%ld "     ;/ TODO : inca un printf fara spatiu
     newLine: .asciz "\n"
 
     cerinta: .space 4
@@ -31,11 +31,9 @@
 
     iterator: .space 4
 
-    matrix: .space 62500    ;/ matrix[125][125]
-
-    m1: .space 62500        ;/ m1[125][125]
-    m2: .space 62500        ;/ m2[125][125]
-    mres: .space 62500      ;/ mres[125][125]
+    m1: .space 62500            ;/ m1[125][125]
+    m2: .space 62500            ;/ m2[125][125]
+    mres: .space 62500          ;/ mres[125][125]
 
 .text
     ;/ TODO : DELETE
@@ -77,7 +75,7 @@
         ;/ 16(%ebp)     -> mres
         ;/ 20(%ebp)     -> n
 
-        ;/ spatiu auxiliar pt variabilele locale: i, j, k, inmultire
+        ;/ spatiu auxiliar pt variabilele locale:
         subl $24, %esp
         movl $0, -4(%ebp)       ;/ i
         movl $0, -8(%ebp)       ;/ j
@@ -107,7 +105,7 @@
                 addl -8(%ebp), %eax                     ;/ eax = i * n + j
 
                 movl 16(%ebp), %edi                     ;/ mres
-                addl $0, (%edi, %eax, 4)                ;/ mres[i][j] = 0
+                movl $0, (%edi, %eax, 4)                ;/ mres[i][j] = 0
 
                 movl $0, -12(%ebp)						;/ k = 0
                 et_for_k:
@@ -124,8 +122,8 @@
                     mull 20(%ebp)               		;/ eax = i * n
                     addl -12(%ebp), %eax        		;/ eax = i * n + k
 
-                    movl 8(%ebp), %esi          		;/ m1
-                    movl (%esi, %eax, 4), %ebx
+                    movl 8(%ebp), %esi          		;/ m1[][]
+                    movl (%esi, %eax, 4), %ebx          ;/ ebx = m1[i][k]
                     movl %ebx, -16(%ebp)  	            ;/ m1 = m1[i][k] 
 
                     ;/ m2 = m2[k][j]
@@ -134,8 +132,8 @@
                     mull 20(%ebp)               		;/ eax = k * n
                     addl -8(%ebp), %eax         		;/ eax = k * n + j
 
-                    movl 12(%ebp), %esi         		;/ m2
-                    movl (%esi, %eax, 4), %ebx
+                    movl 12(%ebp), %esi         		;/ m2[][]
+                    movl (%esi, %eax, 4), %ebx          ;/ ebx = m2[k][j]
                     movl %ebx, -20(%ebp)  	            ;/ m2 = m2[k][j]
 
                     ;/ eax = m1 * m2
@@ -150,7 +148,7 @@
                     mull 20(%ebp)                       ;/ eax = i * n
                     addl -8(%ebp), %eax                 ;/ eax = i * n + j
 
-                    movl 16(%ebp), %edi                 ;/ mres
+                    movl 16(%ebp), %edi                 ;/ mres[]][]
                     movl -24(%ebp), %ebx                ;/ ebx = inmultire
                     addl %ebx, (%edi, %eax, 4)
 
@@ -170,6 +168,64 @@
         et_exit_matrix_mult:
             ;/ dezalocarea spatiului local
             addl $24, %esp
+
+            popl %ebp
+            ret
+
+    
+      
+  
+  
+  matrix_copy:        	;/ matrix_copy(sourceMatrix, destinationMatrix, n)
+        pushl %ebp
+        movl %esp, %ebp
+
+        ;/ 8(%ebp)      -> sourceMatrix
+        ;/ 12(%ebp)     -> destinationMatrix
+        ;/ 16(%ebp)     -> n
+
+        ;/ spatiu auxiliar pt variabilele locale
+        subl $8, %esp
+        movl $0, -4(%ebp)       ;/ i = 0
+        movl $0, -8(%ebp)       ;/ j = 0
+
+        movl $0, -4(%ebp)								;/ i = 0
+        et_for_i_matrix_copy:
+            movl 16(%ebp), %ebx							;/ ebx = n
+            movl -4(%ebp), %ecx							;/ ecx = i
+            cmp %ebx, %ecx
+            je et_exit_matrix_copy						;/ if (i == n) -> exit
+
+            movl $0, -8(%ebp)							;/ j = 0
+            et_for_j_matrix_copy:
+                movl 16(%ebp), %ebx						;/ ebx = n
+                movl -8(%ebp), %ecx						;/ ecx = j
+                cmp %ebx, %ecx			
+                je et_cont_i_matrix_copy				;/ if (j == n) -> back to et_for_i_matrix_copy
+
+                ;/ destinationMatrix[i][j] = sourceMatrix[i][j]				
+                movl -4(%ebp), %eax                     ;/ eax = i
+                movl $0, %edx
+                mull 16(%ebp)                           ;/ eax = i * n
+                addl -8(%ebp), %eax                     ;/ eax = i * n + j
+				
+                movl 8(%ebp), %esi                     	;/ esi = sourceMatrix
+				movl 12(%ebp), %edi                     ;/ edi = destinationMatrix
+                
+				movl (%esi, %eax, 4), %ebx				;/ ebx = sourceMatrix[i][j]
+				movl %ebx, (%edi, %eax, 4)              ;/ destinationMatrix[i][j] = sourceMatrix[i][j]
+                
+                incl -8(%ebp)                           ;/ j++
+                jmp et_for_j_matrix_copy
+
+        et_cont_i_matrix_copy:
+            incl -4(%ebp)                               ;/ i++
+            jmp et_for_i_matrix_copy
+
+
+        et_exit_matrix_copy:
+            ;/ dezalocarea spatiului local
+            addl $8, %esp
 
             popl %ebp
             ret
@@ -328,7 +384,7 @@ et_citeste_noduri:
             mull n
             addl nextNod, %eax
 
-            lea matrix, %edi
+            lea m1, %edi
             movl $1, (%edi, %eax, 4)
 
             incl iterator
@@ -361,66 +417,73 @@ et_citeste_drum:
     popl %ebx
     popl %ebx
 
-    
-    ;/ afiseaza matrix
-    ;/ lea matrix, %eax
-    ;/ pushl %eax
-    ;/ call matrix_afisare
-    ;/ popl %eax
-
 
 et_imultire_matrix:
-    ;/ matrix_mult($m1, $m2, $mres, n)      ($ - adresa de memorie)
-
-
-        ;/ TODO : delete -> doar pt debug
-        
-            call print_newLine
-            call print_newLine
-
-            ;/ afiseaza matrix
-            lea matrix, %eax
-            pushl %eax
-            call matrix_afisare
-            popl %eax
-
-            call print_newLine
-
-            ;/ afiseaza matrix^2
-            lea mres, %ecx
-            lea matrix, %ebx
-            lea matrix, %eax
-
-            pushl n
-            pushl %ecx
-            pushl %ebx
-            pushl %eax
-            call matrix_mult
-            popl %ebx
-            popl %ebx
-            popl %ebx
-            popl %ebx
-
-            lea mres, %eax
-            pushl %eax
-            call matrix_afisare
-            popl %eax
-
-        ;/ TODO : delete -> doar pt debug
+    ;/ m2[][] = m1[]
+    pushl n
+    pushl $m2
+    pushl $m1
+    call matrix_copy                ;/ matrix_copy($sourceMatrix, $destinationMatrix, n)
+    popl %ebx
+    popl %ebx
+    popl %ebx
 
 
     movl $1, iterator
     et_for_imultire_matrix:
         movl iterator, %ecx
         cmp k, %ecx
-        je et_exit              ;/ TODO : mergi la urmatoarea eticheta
+        je et_afisare_cerinta2      ;/ TODO : mergi la urmatoarea eticheta
 
-        ;/ inmultire matrix cu procedura -> matrix_mult($m1, $m2, $mres, n)
-        ;/ TODO
+        ;/ mres[][] = m1[][] * m2[][]
+        pushl n
+        pushl $mres
+        pushl $m2
+        pushl $m1
+        call matrix_mult            ;/ matrix_mult($m1, $m2, $mres, n)
+        popl %ebx
+        popl %ebx
+        popl %ebx
+        popl %ebx
+
+        ;/ m2[][] = mres[][]
+        pushl n
+        pushl $m2
+        pushl $mres
+        call matrix_copy            ;/ matrix_copy($sourceMatrix, $destinationMatrix, n)
+        popl %ebx
+        popl %ebx
+        popl %ebx
 
         incl iterator
         jmp et_for_imultire_matrix
             
+
+et_afisare_cerinta2:
+
+    ;/ TODO : DELETE
+    call print_newLine
+    call print_newLine
+
+    ;/ afiseaza m2[i][j]
+    movl start, %eax              ;/ eax = start
+    movl $0, %edx
+    mull n                        ;/ eax = start * n
+    addl end, %eax                ;/ eax = start * n + end
+
+    lea m2, %esi                  ;/ m2[][]
+    movl (%esi, %eax, 4), %ebx    ;/ ebx = m2[i][j]
+
+    pushl %ebx
+    pushl $formatPrintf
+    call printf
+    popl %ebx
+    popl %ebx
+
+    pushl $0
+    call fflush
+    popl %ebx
+    
 
 et_exit:
     movl $1, %eax
