@@ -13,7 +13,7 @@
 
 .data
     formatScanf: .asciz "%ld"
-    formatPrintf: .asciz "%ld "     ;/ TODO : inca un printf fara spatiu
+    formatPrintf: .asciz "%ld "     ;/ TODO : inca un printf fara spatiu ?
     newLine: .asciz "\n"
 
     cerinta: .space 4
@@ -40,6 +40,12 @@
         pushl %ebp
         movl %esp, %ebp
 
+        ;/ salveaza registrii callee-saved folositi in procedura
+        pushl %ebx
+        pushl %esi
+        pushl %edi
+
+        ;/ Parametrii procedurii
         ;/ 8(%ebp)      -> m1
         ;/ 12(%ebp)     -> m2
         ;/ 16(%ebp)     -> mres
@@ -139,7 +145,13 @@
             ;/ dezalocarea spatiului local
             addl $24, %esp
 
+            ;/ salveaza registrii callee-saved folositi in procedura
+            popl %edi
+            popl %esi
+            popl %ebx
+
             popl %ebp
+
             ret
   
   
@@ -147,6 +159,12 @@
         pushl %ebp
         movl %esp, %ebp
 
+        ;/ salveaza registrii callee-saved folositi in procedura
+        pushl %ebx
+        pushl %esi
+        pushl %edi
+
+        ;/ Parametrii procedurii
         ;/ 8(%ebp)      -> sourceMatrix
         ;/ 12(%ebp)     -> destinationMatrix
         ;/ 16(%ebp)     -> n
@@ -193,6 +211,11 @@
         et_exit_matrix_copy:
             ;/ dezalocarea spatiului local
             addl $8, %esp
+
+            ;/ salveaza registrii callee-saved folositi in procedura
+            popl %edi
+            popl %esi
+            popl %ebx
 
             popl %ebp
             ret
