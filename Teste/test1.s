@@ -1,23 +1,21 @@
 .data
+
+
 .text
+    proc1:
+        movl $0, %eax
+
+        ret
+
+
 .globl main
 main:
-    mov $0x80000000, %eax
-    mov $0x8, %ebx
-    mov $0x1, %ecx
-    mov $0x4, %edx
-
-etmul:
-    mul %ebx
+    
+    movl $15, %eax
+    call proc1
 
 exit:
     mov $1, %eax
     mov $0, %ebx
     int $0x80
-
-; eax = 0
-; edx = 4
-
-; ebx = 8
-; ecx = 1
 
