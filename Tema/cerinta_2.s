@@ -13,7 +13,7 @@
 
 .data
     formatScanf: .asciz "%ld"
-    formatPrintf: .asciz "%ld "     ;/ TODO : inca un printf fara spatiu
+    formatPrintf: .asciz "%ld "     ;/ TODO : inca un printf fara spatiu ?
     newLine: .asciz "\n"
 
     cerinta: .space 4
@@ -36,40 +36,16 @@
     mres: .space 62500          ;/ mres[125][125]
 
 .text
-    ;/ TODO : DELETE
-    print_nr:               ;/ print_nr(nr)
-        pushl %ebp
-        movl %esp, %ebp
-
-        pushl 8(%ebp)
-        pushl $formatPrintf
-        call printf
-        popl %ebx
-        popl %ebx
-
-        pushl $0
-        call fflush
-        popl %ebx
-
-        popl %ebp
-        ret
-
-    
-    ;/ TODO : DELETE
-    print_newLine:      ;/ print_newLine()
-        movl $4, %eax
-        movl $1, %ebx
-        movl $newLine, %ecx
-        movl $2, %edx
-        int $0x80
-
-        ret
-
-
     matrix_mult:        ;/ matrix_mult(m1, m2, mres, n)
         pushl %ebp
         movl %esp, %ebp
 
+        ;/ salveaza registrii callee-saved folositi in procedura
+        pushl %ebx
+        pushl %esi
+        pushl %edi
+
+        ;/ Parametrii procedurii
         ;/ 8(%ebp)      -> m1
         ;/ 12(%ebp)     -> m2
         ;/ 16(%ebp)     -> mres
@@ -169,17 +145,26 @@
             ;/ dezalocarea spatiului local
             addl $24, %esp
 
-            popl %ebp
-            ret
+            ;/ salveaza registrii callee-saved folositi in procedura
+            popl %edi
+            popl %esi
+            popl %ebx
 
-    
-      
+            popl %ebp
+
+            ret
   
   
   matrix_copy:        	;/ matrix_copy(sourceMatrix, destinationMatrix, n)
         pushl %ebp
         movl %esp, %ebp
 
+        ;/ salveaza registrii callee-saved folositi in procedura
+        pushl %ebx
+        pushl %esi
+        pushl %edi
+
+        ;/ Parametrii procedurii
         ;/ 8(%ebp)      -> sourceMatrix
         ;/ 12(%ebp)     -> destinationMatrix
         ;/ 16(%ebp)     -> n
@@ -227,63 +212,11 @@
             ;/ dezalocarea spatiului local
             addl $8, %esp
 
-            popl %ebp
-            ret
+            ;/ salveaza registrii callee-saved folositi in procedura
+            popl %edi
+            popl %esi
+            popl %ebx
 
-
-    matrix_afisare:     ;/ matrix_afisare(mat)
-        pushl %ebp
-        movl %esp, %ebp
-
-        movl 8(%ebp), %edi      ;/ adresa de memorie pt mat
-
-        et_afiseaza_matrix:
-            movl $0, nod
-
-            for_afiseaza_matrix_linii:
-                movl nod, %ecx
-                cmp %ecx, n
-                je et_exit_afiseaza_matrix                              ;/ TODO : mergi la urmatoarea eticheta
-
-                movl $0, nextNod
-                for_afiseaza_matrix_coloane:
-                    movl nextNod, %ecx
-                    cmp %ecx, n
-                    je et_cont_for_afiseaza_matrix_linii
-
-                    ;/ afisez matrix[nod][nextNod]
-                    ;/ index = nod * n + nextNod
-                    movl nod, %eax
-                    movl $0, %edx
-                    mull n
-                    addl nextNod, %eax
-
-                    movl (%edi, %eax, 4), %ebx
-
-                    pushl %ebx
-                    pushl $formatPrintf
-                    call printf
-                    popl %ebx
-                    popl %ebx
-
-                    pushl $0
-                    call fflush
-                    popl %ebx
-
-                    incl nextNod
-                    jmp for_afiseaza_matrix_coloane
-
-            et_cont_for_afiseaza_matrix_linii:
-                movl $4, %eax
-                movl $1, %ebx
-                movl $newLine, %ecx
-                movl $2, %edx
-                int $0x80
-
-                incl nod
-                jmp for_afiseaza_matrix_linii
-
-        et_exit_afiseaza_matrix:
             popl %ebp
             ret
 
@@ -309,7 +242,7 @@ main:
     et_for_legaturi:
         movl nod, %ecx
         cmp n, %ecx
-        je et_afiseaza_legaturi         ;/ TODO : mergi la urmatoarea eticheta
+        je et_citeste_noduri         ;/ mergi la urmatoarea eticheta
 
         pushl $nrLegaturi
         pushl $formatScanf
@@ -327,39 +260,12 @@ main:
         jmp et_for_legaturi
 
 
-et_afiseaza_legaturi:
-    movl $0, nod
-
-    et_for_afiseaza_legaturi:
-        movl nod, %ecx
-        cmp n, %ecx
-        je et_citeste_noduri                      ;/ TODO : TODO : mergi la urmatoarea eticheta
-
-        ;/ afiseaza legaturi[nod]
-        lea legaturi, %edi
-        movl nod, %ecx
-        movl (%edi, %ecx, 4), %ebx
-
-        pushl %ebx
-        pushl $formatPrintf
-        call printf
-        popl %ebx
-        popl %ebx
-
-        pushl $0
-        call fflush
-        popl %ebx
-
-        incl nod
-        jmp et_for_afiseaza_legaturi
-
-
 et_citeste_noduri:
     movl $0, nod
     et_for_noduri:
         movl nod, %ecx
         cmp n, %ecx
-        je et_citeste_drum                  ;/ TODO : mergi la urmatoarea eticheta
+        je et_alege_cerinta              ;/ mergi la urmatoarea eticheta
 
         movl $0, iterator
         et_for_legaturi_noduri:
@@ -395,7 +301,61 @@ et_citeste_noduri:
         jmp et_for_noduri
 
 
-et_citeste_drum:
+et_alege_cerinta:
+    movl $1, %eax
+    cmp cerinta, %eax
+    je et_cerinta1          ;/ mergi la cerinta 1
+    jmp et_cerinta2         ;/ mergi la cerinta 2
+
+
+et_cerinta1:            ;/ afiseaza raspuns pentru cerinta 1
+    movl $0, nod
+    for_afiseaza_matrix_linii:
+        movl nod, %ecx
+        cmp %ecx, n
+        je et_exit                              ;/ mergi la urmatoarea eticheta
+
+        movl $0, nextNod
+        for_afiseaza_matrix_coloane:
+            movl nextNod, %ecx
+            cmp %ecx, n
+            je et_cont_for_afiseaza_matrix_linii
+
+            ;/ afisez matrix[nod][nextNod]
+            ;/ index = nod * n + nextNod
+            movl nod, %eax
+            movl $0, %edx
+            mull n
+            addl nextNod, %eax
+
+            lea m1, %edi
+            movl (%edi, %eax, 4), %ebx
+
+            pushl %ebx
+            pushl $formatPrintf
+            call printf
+            popl %ebx
+            popl %ebx
+
+            pushl $0
+            call fflush
+            popl %ebx
+
+            incl nextNod
+            jmp for_afiseaza_matrix_coloane
+
+    et_cont_for_afiseaza_matrix_linii:
+        movl $4, %eax
+        movl $1, %ebx
+        movl $newLine, %ecx
+        movl $2, %edx
+        int $0x80
+
+        incl nod
+        jmp for_afiseaza_matrix_linii
+
+
+et_cerinta2:        ;/ citeste drumul cautat
     ;/ citeste: k
     pushl $k
     pushl $formatScanf
@@ -433,7 +393,7 @@ et_imultire_matrix:
     et_for_imultire_matrix:
         movl iterator, %ecx
         cmp k, %ecx
-        je et_afisare_cerinta2      ;/ TODO : mergi la urmatoarea eticheta
+        je et_afisare_cerinta2      ;/ mergi la urmatoarea eticheta
 
         ;/ mres[][] = m1[][] * m2[][]
         pushl n
@@ -460,11 +420,6 @@ et_imultire_matrix:
             
 
 et_afisare_cerinta2:
-
-    ;/ TODO : DELETE
-    call print_newLine
-    call print_newLine
-
     ;/ afiseaza m2[i][j]
     movl start, %eax              ;/ eax = start
     movl $0, %edx

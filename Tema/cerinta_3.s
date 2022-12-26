@@ -16,38 +16,31 @@
     formatPrintf: .asciz "%ld "     ;/ TODO : inca un printf fara spatiu ?
     newLine: .asciz "\n"
 
-    cerinta: .space 4
-    n: .space 4
-
-    iterator: .space 4
-
 .text
         
 .global main
-main:
-    movl $3, n
-    
-    movl $0, iterator
-et_incarcare:
-    movl iterator, %ecx
-    cmp %ecx, n
-    je et_exit
-    
-    movl $192, %eax
+main:    
+    movl $9, %eax
     movl $0, %ebx
     movl $62500, %ecx   ;/ dimensiunea de alocat -> de schimbat in (n + 5)
     movl $3, %edx       ;/ prot   = PROT_READ | PROT_WRITE = 1 + 2 = 3
-    movl $17, %esi      ;/ flags  = MAP_ANONYMOUS | MAP_SHARED = 16 + 1 = 17
-    movl $-1, %edi      ;/ fd     = 0 sau -1 (require fd to be -1 if MAP_ANONYMOUS)
+    movl $17, %esi      ;/ flags  = MAP_ANONYMOUS | MAP_PRIVATE = 16 + 2 = 18
+    movl $(-1), %edi    ;/ fd     = -1 (require fd to be -1 if MAP_ANONYMOUS)
     movl $0, %ebp       ;/ offset = 0
     int $0x80
 
-    incl iterator
-    jmp et_incarcare
-
+et_2:
+    movl $9, %eax
+    movl $0, %ebx
+    movl $62500, %ecx   ;/ dimensiunea de alocat -> de schimbat in (n + 5)
+    movl $3, %edx       ;/ prot   = PROT_READ | PROT_WRITE = 1 + 2 = 3
+    movl $17, %esi      ;/ flags  = MAP_ANONYMOUS | MAP_PRIVATE = 16 + 2 = 18
+    movl $(-1), %edi    ;/ fd     = -1 (require fd to be -1 if MAP_ANONYMOUS)
+    movl $0, %ebp       ;/ offset = 0
+    int $0x80
 
 et_exit:
-    movl $1, %eax
+    movl $60, %eax
     movl $0, %ebx
     int $0x80
 
