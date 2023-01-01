@@ -377,18 +377,27 @@ et_cerinta2:        ;/ citeste drumul cautat
     popl %ebx
 
 
-et_imultire_matrix:
-    ;/ m2[][] = m1[]
-    pushl n
-    pushl $m2
-    pushl $m1
-    call matrix_copy                ;/ matrix_copy($sourceMatrix, $destinationMatrix, n)
-    popl %ebx
-    popl %ebx
-    popl %ebx
+    ;/ m2[][] = IDENTITATE
+    movl $0, iterator
+    et_for_identitate:
+        movl iterator, %ecx
+        cmp n, %ecx
+        je et_inmultire_matrix
+
+        movl iterator, %eax                 ;/ eax = iterator
+        movl $0, %edx
+        mull n                              ;/ eax = i * n
+        addl iterator, %eax                 ;/ eax = i * n + i
+        
+        lea m2, %edi
+        movl $1, (%edi, %eax, 4)            ;/ m2[i][i] = 1
+
+        incl iterator
+        jmp et_for_identitate 
 
 
-    movl $1, iterator
+et_inmultire_matrix:
+    movl $0, iterator 
     et_for_imultire_matrix:
         movl iterator, %ecx
         cmp k, %ecx
