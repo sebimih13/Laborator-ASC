@@ -40,11 +40,6 @@
         pushl %ebp
         movl %esp, %ebp
 
-        ;/ salveaza registrii callee-saved folositi in procedura
-        pushl %ebx
-        pushl %esi
-        pushl %edi
-
         ;/ Parametrii procedurii
         ;/ 8(%ebp)      -> m1
         ;/ 12(%ebp)     -> m2
@@ -59,6 +54,11 @@
         movl $0, -16(%ebp)      ;/ m1
         movl $0, -20(%ebp)      ;/ m2
         movl $0, -24(%ebp)      ;/ inmultire
+
+        ;/ salveaza registrii callee-saved folositi in procedura
+        pushl %ebx
+        pushl %esi
+        pushl %edi
 
         movl $0, -4(%ebp)								;/ i = 0
         et_for_i:
@@ -142,27 +142,21 @@
 
 
         et_exit_matrix_mult:
-            ;/ dezalocarea spatiului local
-            addl $24, %esp
-
             ;/ salveaza registrii callee-saved folositi in procedura
             popl %edi
             popl %esi
             popl %ebx
 
-            popl %ebp
+            ;/ dezalocarea spatiului local
+            addl $24, %esp
 
+            popl %ebp
             ret
   
   
   matrix_copy:        	;/ matrix_copy(sourceMatrix, destinationMatrix, n)
         pushl %ebp
         movl %esp, %ebp
-
-        ;/ salveaza registrii callee-saved folositi in procedura
-        pushl %ebx
-        pushl %esi
-        pushl %edi
 
         ;/ Parametrii procedurii
         ;/ 8(%ebp)      -> sourceMatrix
@@ -173,6 +167,11 @@
         subl $8, %esp
         movl $0, -4(%ebp)       ;/ i = 0
         movl $0, -8(%ebp)       ;/ j = 0
+
+        ;/ salveaza registrii callee-saved folositi in procedura
+        pushl %ebx
+        pushl %esi
+        pushl %edi
 
         movl $0, -4(%ebp)								;/ i = 0
         et_for_i_matrix_copy:
@@ -209,13 +208,13 @@
 
 
         et_exit_matrix_copy:
-            ;/ dezalocarea spatiului local
-            addl $8, %esp
-
             ;/ salveaza registrii callee-saved folositi in procedura
             popl %edi
             popl %esi
             popl %ebx
+
+            ;/ dezalocarea spatiului local
+            addl $8, %esp
 
             popl %ebp
             ret
