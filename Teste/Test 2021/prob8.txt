@@ -1,0 +1,31 @@
+
+
+
+
+Solutie:
+
+a)  2   - linia 5  : 0x8(%ebp),%eax
+        - linia 15 : 0xc(%ebp),%eax
+
+
+b)  conditia este ca numarul (primul argumet al functiei) sa fie impar
+
+    se muta valoarea primului argument in eax
+    se face and => eax = eax & 1
+    conditia este indeplinita daca eax != 0
+    
+
+c)  DA. Al doilea argument al functiei este un pointer
+    pentru ca avem la linia 17. movzbl (%eax),%eax    
+
+
+d)  NU. Preluam continutul din pointerul care indica valoarea de return
+    pentru ca avem la linia 22. movzbl (%eax),%eax
+                      linia 17. movzbl (%eax),%eax
+    
+
+e)  primul argument este de tipul       - long
+    al doilea argument este de tipul    - pointer la byte
+
+
+

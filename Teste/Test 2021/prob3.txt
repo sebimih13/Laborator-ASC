@@ -1,0 +1,22 @@
+
+
+%esp = 0xffff2022
+disp = 0xffdf8d3a
+
+
+
+- Solutie : 
+
+%esp = 0xffff2022
+disp = 0xffdf8d3a
+dif  = 0x001f92e8 = 2069224
+
+Pt fiecare apel al functiei f => vom incarca pe stiva cate 4*4 = 16 bytes pt: x, adresa de return, vechiul base pointer, %ebx
+Fara autoapel avem  : X * 16 bytes
+Cu autoapel avem    : (X + 1) * 16 bytes        => X + 1 = 129326,5    => X = 129325,5
+
+=> Putem facem 2^129325 apeluri
+
+Daca alegem 2^129326 => segmentation fault
+
+

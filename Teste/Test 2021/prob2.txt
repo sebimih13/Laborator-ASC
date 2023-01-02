@@ -1,0 +1,16 @@
+
+
+main:
+    movl $100, %esp
+    pushl %eax
+    movl $0, %eax
+    xorl %ebx, %ebx
+    int $0x80
+
+
+
+- Solutie : 
+
+In registrul %esp punem o valoare incorecta, iar atunci cand incercam sa incarcam pe stiva valoarea din registrul %eax
+vom optine un segmentation fault pentru ca nu avem cum sa facem incarcam pe stiva la acea adreasa.
+

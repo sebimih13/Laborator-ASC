@@ -1,0 +1,14 @@
+
+
+
+
+Solutie :
+
+eax = 0xae2b
+ecx = 0xae2b
+ecx = 0xae2b - 0x0001 = 0xae2a
+
+while (ecx >= 0)
+    ecx++   
+
+Nu va fi o bucla infinita pentru ca ecx va da overflow si va fii un numar negativ, ceea ce va rezulta in inchiderea programului

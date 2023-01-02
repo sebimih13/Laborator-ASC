@@ -1,0 +1,21 @@
+
+
+
+
+- Solutie : 
+
+1. %ecx trebuie salvat inainte de a apela procedurile f si printf, si dupa restaurat    
+    pushl %ecx
+    ...
+    popl %ecx
+
+2. %edi este folosit in functi f si fiind un registru callee-saved trb salvat in procedura f si restaurat la sfarsitul ei
+    pushl %edi
+    ...
+    popl %edi
+
+3. incl %edi --> addl $4, %edi
+
+4. jae --> jle
+
+
