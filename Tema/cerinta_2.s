@@ -40,115 +40,115 @@
         pushl %ebp
         movl %esp, %ebp
 
-        ;/ Parametrii procedurii
+        ;/ Argumentele procedurii
         ;/ 8(%ebp)      -> m1
         ;/ 12(%ebp)     -> m2
         ;/ 16(%ebp)     -> mres
         ;/ 20(%ebp)     -> n
-
-        ;/ spatiu auxiliar pt variabilele locale:
-        subl $24, %esp
-        movl $0, -4(%ebp)       ;/ i
-        movl $0, -8(%ebp)       ;/ j
-        movl $0, -12(%ebp)      ;/ k
-        movl $0, -16(%ebp)      ;/ m1
-        movl $0, -20(%ebp)      ;/ m2
-        movl $0, -24(%ebp)      ;/ inmultire
 
         ;/ salveaza registrii callee-saved folositi in procedura
         pushl %ebx
         pushl %esi
         pushl %edi
 
-        movl $0, -4(%ebp)								;/ i = 0
+        ;/ spatiu auxiliar pt variabilele locale:
+        subl $24, %esp
+        movl $0, -16(%ebp)      ;/ i
+        movl $0, -20(%ebp)      ;/ j
+        movl $0, -24(%ebp)      ;/ k
+        movl $0, -28(%ebp)      ;/ m1
+        movl $0, -32(%ebp)      ;/ m2
+        movl $0, -36(%ebp)      ;/ inmultire
+
+        movl $0, -16(%ebp)								;/ i = 0
         et_for_i:
             movl 20(%ebp), %ebx							;/ ebx = n
-            movl -4(%ebp), %ecx							;/ ecx = i
+            movl -16(%ebp), %ecx					    ;/ ecx = i
             cmp %ebx, %ecx
             je et_exit_matrix_mult						;/ if (i == n) -> exit
 
-            movl $0, -8(%ebp)							;/ j = 0
+            movl $0, -20(%ebp)							;/ j = 0
             et_for_j:
                 movl 20(%ebp), %ebx						;/ ebx = n
-                movl -8(%ebp), %ecx						;/ ecx = j
+                movl -20(%ebp), %ecx					;/ ecx = j
                 cmp %ebx, %ecx			
                 je et_cont_i							;/ if (j == n) -> back to et_for_i
 
                 ;/ mres[i][j] = 0
-                movl -4(%ebp), %eax                     ;/ eax = i
+                movl -16(%ebp), %eax                    ;/ eax = i
                 movl $0, %edx
                 mull 20(%ebp)                           ;/ eax = i * n
-                addl -8(%ebp), %eax                     ;/ eax = i * n + j
+                addl -20(%ebp), %eax                    ;/ eax = i * n + j
 
                 movl 16(%ebp), %edi                     ;/ mres
                 movl $0, (%edi, %eax, 4)                ;/ mres[i][j] = 0
 
-                movl $0, -12(%ebp)						;/ k = 0
+                movl $0, -24(%ebp)						;/ k = 0
                 et_for_k:
                     movl 20(%ebp), %ebx					;/ ebx = n
-                    movl -12(%ebp), %ecx				;/ ecx = k
+                    movl -24(%ebp), %ecx				;/ ecx = k
                     cmp %ebx, %ecx
                     je et_cont_j						;/ if (k == n) -> back to et_for_j
                         
                     ;/ mat[i][j] += mat[i][k] * mat[k][j]
                     
                     ;/ m1 = m1[i][k]
-                    movl -4(%ebp), %eax         		;/ eax = i
+                    movl -16(%ebp), %eax         		;/ eax = i
                     movl $0, %edx               
                     mull 20(%ebp)               		;/ eax = i * n
-                    addl -12(%ebp), %eax        		;/ eax = i * n + k
+                    addl -24(%ebp), %eax        		;/ eax = i * n + k
 
                     movl 8(%ebp), %esi          		;/ m1[][]
                     movl (%esi, %eax, 4), %ebx          ;/ ebx = m1[i][k]
-                    movl %ebx, -16(%ebp)  	            ;/ m1 = m1[i][k] 
+                    movl %ebx, -28(%ebp)  	            ;/ m1 = m1[i][k] 
 
                     ;/ m2 = m2[k][j]
-                    movl -12(%ebp), %eax        		;/ eax = k
+                    movl -24(%ebp), %eax        		;/ eax = k
                     movl $0, %edx
                     mull 20(%ebp)               		;/ eax = k * n
-                    addl -8(%ebp), %eax         		;/ eax = k * n + j
+                    addl -20(%ebp), %eax         		;/ eax = k * n + j
 
                     movl 12(%ebp), %esi         		;/ m2[][]
                     movl (%esi, %eax, 4), %ebx          ;/ ebx = m2[k][j]
-                    movl %ebx, -20(%ebp)  	            ;/ m2 = m2[k][j]
+                    movl %ebx, -32(%ebp)  	            ;/ m2 = m2[k][j]
 
                     ;/ eax = m1 * m2
-                    movl -16(%ebp), %eax                ;/ eax = m1
+                    movl -28(%ebp), %eax                ;/ eax = m1
                     movl $0, %edx
-                    mull -20(%ebp)                      ;/ eax = m1 * m2
-                    movl %eax, -24(%ebp)                ;/ inmultire = m1 * m2
+                    mull -32(%ebp)                      ;/ eax = m1 * m2
+                    movl %eax, -36(%ebp)                ;/ inmultire = m1 * m2
 
                     ;/ mres[i][j] += inmultire
-                    movl -4(%ebp), %eax                 ;/ eax = i
+                    movl -16(%ebp), %eax                ;/ eax = i
                     movl $0, %edx
                     mull 20(%ebp)                       ;/ eax = i * n
-                    addl -8(%ebp), %eax                 ;/ eax = i * n + j
+                    addl -20(%ebp), %eax                ;/ eax = i * n + j
 
                     movl 16(%ebp), %edi                 ;/ mres[]][]
-                    movl -24(%ebp), %ebx                ;/ ebx = inmultire
+                    movl -36(%ebp), %ebx                ;/ ebx = inmultire
                     addl %ebx, (%edi, %eax, 4)
 
                 et_cont_k:
-                    incl -12(%ebp)
+                    incl -24(%ebp)
                     jmp et_for_k
 
             et_cont_j:
-                incl -8(%ebp)
+                incl -20(%ebp)
                 jmp et_for_j
 
         et_cont_i:
-            incl -4(%ebp)
+            incl -16(%ebp)
             jmp et_for_i
 
 
         et_exit_matrix_mult:
+            ;/ dezalocarea spatiului local
+            addl $24, %esp
+
             ;/ salveaza registrii callee-saved folositi in procedura
             popl %edi
             popl %esi
             popl %ebx
-
-            ;/ dezalocarea spatiului local
-            addl $24, %esp
 
             popl %ebp
             ret
@@ -158,40 +158,40 @@
         pushl %ebp
         movl %esp, %ebp
 
-        ;/ Parametrii procedurii
+        ;/ Argumentele procedurii
         ;/ 8(%ebp)      -> sourceMatrix
         ;/ 12(%ebp)     -> destinationMatrix
         ;/ 16(%ebp)     -> n
-
-        ;/ spatiu auxiliar pt variabilele locale
-        subl $8, %esp
-        movl $0, -4(%ebp)       ;/ i = 0
-        movl $0, -8(%ebp)       ;/ j = 0
 
         ;/ salveaza registrii callee-saved folositi in procedura
         pushl %ebx
         pushl %esi
         pushl %edi
 
-        movl $0, -4(%ebp)								;/ i = 0
+        ;/ spatiu auxiliar pt variabilele locale
+        subl $8, %esp
+        movl $0, -16(%ebp)       ;/ i = 0
+        movl $0, -20(%ebp)       ;/ j = 0
+
+        movl $0, -16(%ebp)								;/ i = 0
         et_for_i_matrix_copy:
             movl 16(%ebp), %ebx							;/ ebx = n
-            movl -4(%ebp), %ecx							;/ ecx = i
+            movl -16(%ebp), %ecx						;/ ecx = i
             cmp %ebx, %ecx
             je et_exit_matrix_copy						;/ if (i == n) -> exit
 
-            movl $0, -8(%ebp)							;/ j = 0
+            movl $0, -20(%ebp)							;/ j = 0
             et_for_j_matrix_copy:
                 movl 16(%ebp), %ebx						;/ ebx = n
-                movl -8(%ebp), %ecx						;/ ecx = j
+                movl -20(%ebp), %ecx					;/ ecx = j
                 cmp %ebx, %ecx			
                 je et_cont_i_matrix_copy				;/ if (j == n) -> back to et_for_i_matrix_copy
 
                 ;/ destinationMatrix[i][j] = sourceMatrix[i][j]				
-                movl -4(%ebp), %eax                     ;/ eax = i
+                movl -16(%ebp), %eax                    ;/ eax = i
                 movl $0, %edx
                 mull 16(%ebp)                           ;/ eax = i * n
-                addl -8(%ebp), %eax                     ;/ eax = i * n + j
+                addl -20(%ebp), %eax                    ;/ eax = i * n + j
 				
                 movl 8(%ebp), %esi                     	;/ esi = sourceMatrix
 				movl 12(%ebp), %edi                     ;/ edi = destinationMatrix
@@ -199,22 +199,22 @@
 				movl (%esi, %eax, 4), %ebx				;/ ebx = sourceMatrix[i][j]
 				movl %ebx, (%edi, %eax, 4)              ;/ destinationMatrix[i][j] = sourceMatrix[i][j]
                 
-                incl -8(%ebp)                           ;/ j++
+                incl -20(%ebp)                          ;/ j++
                 jmp et_for_j_matrix_copy
 
         et_cont_i_matrix_copy:
-            incl -4(%ebp)                               ;/ i++
+            incl -16(%ebp)                               ;/ i++
             jmp et_for_i_matrix_copy
 
 
         et_exit_matrix_copy:
+            ;/ dezalocarea spatiului local
+            addl $8, %esp
+
             ;/ salveaza registrii callee-saved folositi in procedura
             popl %edi
             popl %esi
             popl %ebx
-
-            ;/ dezalocarea spatiului local
-            addl $8, %esp
 
             popl %ebp
             ret
@@ -226,15 +226,13 @@ main:
     pushl $cerinta
     pushl $formatScanf
     call scanf
-    popl %ebx
-    popl %ebx
+    addl $8, %esp
 
     ;/ citeste: n
     pushl $n
     pushl $formatScanf
     call scanf
-    popl %ebx
-    popl %ebx
+    addl $8, %esp
 
     ;/ citeste legaturi[nod]
     movl $0, nod
@@ -246,8 +244,7 @@ main:
         pushl $nrLegaturi
         pushl $formatScanf
         call scanf
-        popl %ebx
-        popl %ebx
+        addl $8, %esp
 
         ;/ legaturi[nod] = nrLegaturi
         lea legaturi, %edi
@@ -280,8 +277,7 @@ et_citeste_noduri:
             pushl $nextNod
             pushl $formatScanf
             call scanf
-            popl %ebx
-            popl %ebx
+            addl $8, %esp
 
             ;/ matrix[nod][nextNod] = 1
             movl nod, %eax
@@ -327,18 +323,17 @@ et_cerinta1:            ;/ afiseaza raspuns pentru cerinta 1
             mull n
             addl nextNod, %eax
 
-            lea m1, %edi
-            movl (%edi, %eax, 4), %ebx
+            lea m1, %esi
+            movl (%esi, %eax, 4), %ebx
 
             pushl %ebx
             pushl $formatPrintf
             call printf
-            popl %ebx
-            popl %ebx
+            addl $8, %esp
 
             pushl $0
             call fflush
-            popl %ebx
+            addl $4, %esp
 
             incl nextNod
             jmp for_afiseaza_matrix_coloane
@@ -359,23 +354,19 @@ et_cerinta2:        ;/ citeste drumul cautat
     pushl $k
     pushl $formatScanf
     call scanf
-    popl %ebx
-    popl %ebx
+    addl $8, %esp
 
     ;/ citeste: start
     pushl $start
     pushl $formatScanf
     call scanf
-    popl %ebx
-    popl %ebx
+    addl $8, %esp
 
     ;/ citeste: end
     pushl $end
     pushl $formatScanf
     call scanf
-    popl %ebx
-    popl %ebx
-
+    addl $8, %esp
 
     ;/ m2[][] = IDENTITATE
     movl $0, iterator
@@ -409,19 +400,14 @@ et_inmultire_matrix:
         pushl $m2
         pushl $m1
         call matrix_mult            ;/ matrix_mult($m1, $m2, $mres, n)
-        popl %ebx
-        popl %ebx
-        popl %ebx
-        popl %ebx
+        addl $16, %esp
 
         ;/ m2[][] = mres[][]
         pushl n
         pushl $m2
         pushl $mres
         call matrix_copy            ;/ matrix_copy($sourceMatrix, $destinationMatrix, n)
-        popl %ebx
-        popl %ebx
-        popl %ebx
+        addl $12, %esp
 
         incl iterator
         jmp et_for_imultire_matrix
@@ -440,12 +426,11 @@ et_afisare_cerinta2:
     pushl %ebx
     pushl $formatPrintf
     call printf
-    popl %ebx
-    popl %ebx
+    addl $8, %esp
 
     pushl $0
     call fflush
-    popl %ebx
+    addl $4, %esp
     
 
 et_exit:
