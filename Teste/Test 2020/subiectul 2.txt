@@ -2,12 +2,39 @@
 
 Solutie:
 
-1. 
+1. inainte de divl %ecx --> movl $0, %edx
+                            pentru a putea sa facem impartirea eax / ecx
 
-2. 
+   movl %ecx, 8(%ebp)   --> movl 8(%ebp), %ecx
+   movl %eax, 12(%ebp)  --> movl 12(%ebp), %eax
 
-3.
+   inainte de call printf registrul %ecx trebuie salvat
+        pushl %ecx
+        ...
+        popl %ecx
 
-4. 
+2. inainte de divl %ecx --> movl $0, %edx
+                            pentru a putea sa facem impartirea eax / ecx
+
+   movl %ecx, 8(%ebp)   --> movl 8(%ebp), %ecx
+   movl %eax, 12(%ebp)  --> movl 12(%ebp), %eax
+
+   daca nu punem in edx valoarea 0, vom face impartirea (2^32 * edx + eax) cu o valoare reziduala in edx
+   chiar daca nu sunt valorile din argumente in ecx, respectiv eax, tot o sa avem niste valori reziduale, deci impartirea va putea fi efectuata
+   necorectarea acestor erori va duce la un comportament impredictibil al programului
+
+3. f(4, 100) -> 100 / 4 = 25 rest 0
+   eax = 25
+   edx = 0
+   ecx = 4
+
+   afisare:
+   4 3 2 1 25
+
+4. fflush este folosit pentru a forta output-ul sa fie afisat
+   
+   instructiunea pushl %eax, insotita de un popl %eax in cadrul procedurii f este necesara pentru a salva in eax la sfarsitul procedurii
+   valoarea calculata la inceputul procedurii, eax = eax / ecx
+   daca nu am face aceasta salvare pe stiva, valoarea calculata se va pierde deoarece urmeaza mai multe call-uri pentru alte proceduri
 
 

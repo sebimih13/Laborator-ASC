@@ -1,0 +1,34 @@
+
+
+Solutie:
+
+1. ?
+
+    lea v, %edi
+    movl i, %ecx
+    movl (%edi, %ecx, 4), %ebx
+
+
+2.  Echivalentul pentru - popl %ebx este :  movl 4(%esp), %ebx
+                                            addl $4, %esp
+
+    esp = 0xffffd05c    => dupa executie esp = 0xffffd058
+
+    pt stack overflow:
+        movl 0xffffffff, %esp
+        pushl $1
+
+
+3.  este posibil sa aflam adresa din memorie a etichetelor din program daca ne uitam la fisierul binar generat de program
+    putem sa le modificam direct din fisierul binar al programului 
+
+
+4. 0
+
+    v: .unsigned 10, 20, 30     
+    fiecare numar are 4 bytes
+
+             10                      20                      30
+    |----|----|0000|1010|   |----|----|----|----|   |----|----|----|----|
+
+    (%edi, 2, 1), %ebx  -> vrem al 3-lea byte
