@@ -13,7 +13,7 @@
 
 .data
     formatScanf: .asciz "%ld"
-    formatPrintf: .asciz "%ld "     ;/ TODO : inca un printf fara spatiu ?
+    formatPrintf: .asciz "%ld "
     newLine: .asciz "\n"
 
     cerinta: .space 4
